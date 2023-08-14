@@ -1,8 +1,8 @@
 import { Play } from 'phosphor-react'
 import { useForm } from 'react-hook-form'
-
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as zod from 'zod'
+import { useState } from 'react'
 
 import {
   CountdownContainer,
@@ -29,11 +29,20 @@ const newCycleFormValidationSchema = zod.object({
 
 type NewCycleFormData = zod.infer<typeof newCycleFormValidationSchema>
 
+interface Cycle {
+  id: string
+  task: string
+  minutesAmount: number
+}
+
 export function Home() {
   
   // controlled
   // const [task, setTask] = useState('')
   
+  const [cycles, setCycles] = useState<Cycle[]>([])
+  const [activeCycleId, setActiveCycleId] = useState<string | null>(null) // null -> não tem ciclo ativo
+
   // uncontroled
   // function handleSubmit(event: any) {
   //   event.preventDefault()
@@ -56,8 +65,24 @@ export function Home() {
   // function handleCreateNewCycle(data: any) {
   function handleCreateNewCycle(data: NewCycleFormData) {
     console.log(data)
+    const id = String(new Date().getTime()) // Atribuir uma ID única para o ciclo, que neste caso é o timestamp atual em milissegundos
+
+    const newCycle: Cycle = {
+      id,
+      task: data.task,
+      minutesAmount: data.minutesAmount,
+    }
+  
+    // setCycles([...cycles, newCycle])
+    setCycles((state) => [...state, newCycle]) // clousure, usar arrow function sempre que o estado atual depende do anterior
+    setActiveCycleId(id)
+
     reset()
   }
+
+  const activeCycle = cycles.find((cycle) => cycle.id === activeCycleId) // mostrar o ciclo ativo
+
+  console.log(activeCycle)
 
   const task = watch('task')
   const isSubmitDisable = !task
