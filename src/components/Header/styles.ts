@@ -27,3 +27,16 @@ export const HeaderContainer = styled.header`
     }
   }
 `
+
+export const LogoContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: ${(props) => props.theme['gray-100']};
+  /* img {   
+    width: 3rem;
+    height: 3rem;
+  } */
+  `
