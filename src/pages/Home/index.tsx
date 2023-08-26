@@ -36,6 +36,7 @@ interface Cycle {
   task: string
   minutesAmount: number
   startDate: Date
+  finishedDate?: Date
 }
 
 export function Home() {
@@ -70,6 +71,7 @@ export function Home() {
   })
 
   const activeCycle = cycles.find((cycle) => cycle.id === activeCycleId) // mostrar o ciclo ativo
+  const totalSeconds = activeCycle ? activeCycle.minutesAmount * 60 : 0
 
 
   useEffect(() => {
@@ -78,15 +80,35 @@ export function Home() {
     if (activeCycle) {
       // setInterval(() => {
         interval = setInterval(() => {
-        setAmountSecondsPassed(
-          differenceInSeconds(new Date(), activeCycle.startDate),
+        // setAmountSecondsPassed(
+        //   differenceInSeconds(new Date(), activeCycle.startDate),
+        const secondsDifference = differenceInSeconds(
+          new Date(),
+          activeCycle.startDate,
         )
+        if (secondsDifference >= totalSeconds) {
+          setCycles((state) =>
+            state.map((cycle) => {
+              if (cycle.id === activeCycleId) {
+                return { ...cycle, finishedDate: new Date() }
+              } else {
+                return cycle
+              }
+            }),
+          )
+
+          setAmountSecondsPassed(totalSeconds)
+          clearInterval(interval)
+        } else {
+          setAmountSecondsPassed(secondsDifference)
+        }
       }, 1000)
     }
     return () => {
       clearInterval(interval)
     }
-  }, [activeCycle])
+  // }, [activeCycle])
+  }, [activeCycle, totalSeconds, activeCycleId])
 
 
   console.log(activeCycle)
@@ -94,7 +116,7 @@ export function Home() {
 
   // function handleCreateNewCycle(data: any) {
   function handleCreateNewCycle(data: NewCycleFormData) {
-    console.log(data)
+    // console.log(data)
     const id = String(new Date().getTime()) // Atribuir uma ID única para o ciclo, que neste caso é o timestamp atual em milissegundos
 
     const newCycle: Cycle = {
@@ -113,8 +135,10 @@ export function Home() {
   }
 
   function handleInterruptCycle() {
-    setCycles(
-      cycles.map((cycle) => {
+    // setCycles(
+    //   cycles.map((cycle) => {
+    setCycles((state) =>
+      state.map((cycle) => {
         if (cycle.id === activeCycleId) {
           return { ...cycle, interruptedDate: new Date() }
         } else {
@@ -126,7 +150,6 @@ export function Home() {
   }
 
 
-  const totalSeconds = activeCycle ? activeCycle.minutesAmount * 60 : 0
   const currentSeconds = activeCycle ? totalSeconds - amountSecondsPassed : 0
 
   const minutesAmount = Math.floor(currentSeconds / 60) // arredonda pra baixo
