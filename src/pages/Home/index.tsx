@@ -72,12 +72,18 @@ export function Home() {
 
 
   useEffect(() => {
+    let interval: number
+
     if (activeCycle) {
-      setInterval(() => {
+      // setInterval(() => {
+        interval = setInterval(() => {
         setAmountSecondsPassed(
           differenceInSeconds(new Date(), activeCycle.startDate),
         )
       }, 1000)
+    }
+    return () => {
+      clearInterval(interval)
     }
   }, [activeCycle])
 
@@ -100,6 +106,7 @@ export function Home() {
     // setCycles([...cycles, newCycle])
     setCycles((state) => [...state, newCycle]) // clousure, usar arrow function sempre que o estado atual depende do anterior
     setActiveCycleId(id)
+    setAmountSecondsPassed(0)
 
     reset()
   }
@@ -113,6 +120,12 @@ export function Home() {
 
   const minutes = String(minutesAmount).padStart(2, '0') // padStart -> se tiver menos de 2 caracteres, preenche com 0
   const seconds = String(secondsAmount).padStart(2, '0')
+
+  useEffect(() => {
+    if (activeCycle) {
+      document.title = `${minutes}:${seconds}`
+    }
+  }, [minutes, seconds, activeCycle])
 
   const task = watch('task') // useForm
   const isSubmitDisable = !task
