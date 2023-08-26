@@ -2,7 +2,8 @@ import { Play } from 'phosphor-react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as zod from 'zod'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { differenceInSeconds } from 'date-fns'
 
 import {
   CountdownContainer,
@@ -33,6 +34,7 @@ interface Cycle {
   id: string
   task: string
   minutesAmount: number
+  startDate: Date
 }
 
 export function Home() {
@@ -43,6 +45,9 @@ export function Home() {
   const [cycles, setCycles] = useState<Cycle[]>([])
   const [activeCycleId, setActiveCycleId] = useState<string | null>(null) // null -> não tem ciclo ativo
   const [amountSecondsPassed, setAmountSecondsPassed] = useState(0)
+
+  // const activeCycle = cycles.find((cycle) => cycle.id === activeCycleId)
+
 
   // uncontroled
   // function handleSubmit(event: any) {
@@ -63,6 +68,23 @@ export function Home() {
     },
   })
 
+  const activeCycle = cycles.find((cycle) => cycle.id === activeCycleId) // mostrar o ciclo ativo
+
+
+  useEffect(() => {
+    if (activeCycle) {
+      setInterval(() => {
+        setAmountSecondsPassed(
+          differenceInSeconds(new Date(), activeCycle.startDate),
+        )
+      }, 1000)
+    }
+  }, [activeCycle])
+
+
+  console.log(activeCycle)
+
+
   // function handleCreateNewCycle(data: any) {
   function handleCreateNewCycle(data: NewCycleFormData) {
     console.log(data)
@@ -72,6 +94,7 @@ export function Home() {
       id,
       task: data.task,
       minutesAmount: data.minutesAmount,
+      startDate: new Date(),
     }
   
     // setCycles([...cycles, newCycle])
@@ -81,9 +104,7 @@ export function Home() {
     reset()
   }
 
-  const activeCycle = cycles.find((cycle) => cycle.id === activeCycleId) // mostrar o ciclo ativo
 
-  console.log(activeCycle)
   const totalSeconds = activeCycle ? activeCycle.minutesAmount * 60 : 0
   const currentSeconds = activeCycle ? totalSeconds - amountSecondsPassed : 0
 
@@ -94,7 +115,7 @@ export function Home() {
   const seconds = String(secondsAmount).padStart(2, '0')
 
   const task = watch('task') // useForm
-  const isSubmitDisable = !task 
+  const isSubmitDisable = !task
 
   return (
     <HomeContainer>
