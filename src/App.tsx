@@ -7,7 +7,7 @@ import { CyclesContextProvider } from './contexts/CyclesContext'
 
 export function App() {
   return (
-    <ThemeProvider theme={defaultTheme} >
+    <ThemeProvider theme={defaultTheme}>
       <BrowserRouter>
         <CyclesContextProvider>
           <Router />
